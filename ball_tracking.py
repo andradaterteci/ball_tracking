@@ -63,9 +63,6 @@ except ImportError as exc:
 #    and homography information
 #
 #
-# 4. Camera-relative RGB-only 3-D football trajectory plot
-#
-#
 # LIMITATION
 # ----------
 # No physical terrace dimensions are known.
@@ -1537,53 +1534,6 @@ def write_excel(rows, filename):
 
     workbook.save(filename)
 
-# ============================================================
-# 3-D BALL PLOT
-# ============================================================
-
-# Save the camera-relative 3-D ball trajectory as a Matplotlib figure.
-def save_3d_plot(xyz_points, filename):
-
-    if len(xyz_points) < 2:
-        print("Not enough 3-D ball points.")
-        return
-
-    # Convert the collected list of 3-D vectors into one N×3 array.
-    xyz = np.asarray(xyz_points,)
-    fig = plt.figure(figsize=(10, 8))
-    ax = fig.add_subplot(111, projection="3d")
-
-    # Plot X horizontally, camera-forward Z as depth, and -Y as visual 'up'.
-    # Y is negated because the camera convention used earlier defines +Y downward.
-    ax.plot(
-         xyz[:, 0],
-         xyz[:, 2],
-        -xyz[:, 1],
-        linewidth=2)
-
-    ax.scatter(
-         xyz[0, 0],
-         xyz[0, 2],
-        -xyz[0, 1],
-        s=50,
-        label="Start")
-
-    ax.scatter(
-         xyz[-1, 0],
-         xyz[-1, 2],
-        -xyz[-1, 1],
-        s=50,
-        label="End")
-
-    ax.set_xlabel("X camera [m]")
-    ax.set_ylabel("Z camera [m]")
-    ax.set_zlabel("Vertical [m]")
-    ax.set_title("Camera-relative RGB-only football trajectory")
-    ax.legend()
-    fig.tight_layout()
-    fig.savefig(filename, dpi=200)
-
-    plt.close(fig)
 
 # ============================================================
 # LOAD YOLO
@@ -1934,7 +1884,7 @@ while True:
             fx, fy,
             px, py)
 
-        # Smooth 3-D position before using it for velocity and plotting.
+        # Smooth 3-D position before using it for velocity.
         ball_xyz_history.append(xyz_raw)
         xyz = median_smooth(ball_xyz_history, BALL_SMOOTH_WINDOW)
         ball_xyz_trajectory.append(xyz.copy())

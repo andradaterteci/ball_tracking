@@ -1,82 +1,70 @@
-INITIALIZE YOLO detector, camera intrinsics, reference-image-to-ground homography, histories, buffers, and output writers
+\# ============================================================
 
-FOR each RGB frame:
+\# README.md
 
-&#x20;   compute frame time
+\# Ball tracking and ML trajectory prediction
 
-&#x20;   convert the current frame to grayscale
+\# Intel RealSense D435i RGB video
 
-&#x20;   estimate current-to-previous camera-motion homography
+\# ============================================================
 
-&#x20;       using background feature tracking + RANSAC
+\#
 
-&#x20;   IF the estimated camera-motion homography is valid:
+\# INPUT: rgb.avi
 
-&#x20;       accumulate the current-to-reference homography
+\#
 
-&#x20;   combine the current-to-reference homography with the
+\# OUTPUTS
 
-&#x20;       reference-to-ground homography to obtain H\_current\_to\_ground
+\# ------------------------------------------------------------
 
-&#x20;   reconstruct the current camera position in the fixed-ground coordinate system
+\# 1. rgb\_out\_ground\_tracking.avi
 
-&#x20;   detect the ball with YOLO
+\#
 
-&#x20;   select the most plausible ball detection
+\#    Annotated original RGB video containing:
 
-&#x20;   IF a ball is detected:
+\#       - ball detection
 
-&#x20;       estimate camera-relative 3D ball position from
+\#       - approximate ball ground-contact point
 
-&#x20;           image position + apparent ball diameter
+\#       - RED ground-fixed measured ball trajectory
 
-&#x20;       smooth the camera-relative 3D position
+\#
 
-&#x20;       compute camera-relative 3D velocity
+\#    Each ball point is stored in the fixed ground coordinate
 
-&#x20;       smooth the camera-relative velocity
+\#    system and then reprojected into the current camera image.
 
-&#x20;       approximate the ball-ground contact point using the
+\#
 
-&#x20;           bottom-center of the bounding box
+\#    The trajectory is therefore intended to remain fixed
 
-&#x20;       transform the ball-ground contact point from the current image into 
+\#    relative to the ground as the camera moves.
 
-&#x20;           fixed-ground coordinates using H\_current\_to\_ground
+\#
 
-&#x20;       append the fixed-ground position to the trajectory history
+\#
 
-&#x20;       estimate recent fixed-ground velocity using linear least-squares fitting
+\# 2. ball\_camera\_ground\_map.avi
 
-&#x20;       TRY polynomial-feature + Ridge regression trajectory prediction
+\#
 
-&#x20;       IF the ML prediction is valid:
+\#       RED     = measured ball ground trajectory
 
-&#x20;           use ML\_Polynomial\_Ridge trajectory
+\#       MAGENTA = ML/fallback predicted future ground trajectory
 
-&#x20;       ELSE IF constant-velocity prediction is available:
+\#       BLUE    = reconstructed camera ground trajectory
 
-&#x20;           use Constant\_Velocity\_Fallback trajectory
+\#
 
-&#x20;       ELSE:
+\#
 
-&#x20;           no future trajectory is available yet
+\# 3. Excel trajectory data, including per-frame camera-relative
 
-&#x20;   reproject the measured and predicted fixed-ground trajectories
+\#    position and velocity, ground position and velocity,
 
-&#x20;       into the current RGB frame
+\#    prediction method/fit, prediction endpoint, camera position,
 
-&#x20;   store the numerical output row
-
-&#x20;   store the information required for the top-view frame
-
-END FOR
-
-compute global top-view bounds from the stored trajectories
-
-render the top-view video in a second pass
-
-write the Excel output
-
-save the camera-relative 3D trajectory plot
+\#    and homography information
 
