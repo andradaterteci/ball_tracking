@@ -1,0 +1,26 @@
+# PyCharm
+.idea/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Model weights
+*.pt
+
+# Videos
+*.avi
+
+# Generated data
+*.xlsx
+
+# Office documents
+*.docx
+*.pptx
+~$*
+
+# OS files
+.DS_Store
+Thumbs.db
